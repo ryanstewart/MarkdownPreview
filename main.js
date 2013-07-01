@@ -28,10 +28,12 @@ define(function (require, exports, module) {
 
     // Brackets modules
     var AppInit             = brackets.getModule("utils/AppInit"),
+        CommandManager      = brackets.getModule("command/CommandManager"),
         DocumentManager     = brackets.getModule("document/DocumentManager"),
         EditorManager       = brackets.getModule("editor/EditorManager"),
         ExtensionUtils      = brackets.getModule("utils/ExtensionUtils"),
         FileUtils           = brackets.getModule("file/FileUtils"),
+        Menus               = brackets.getModule("command/Menus"),
         NativeFileSystem    = brackets.getModule("file/NativeFileSystem").NativeFileSystem,
         PanelManager        = brackets.getModule("view/PanelManager"),
         Resizer             = brackets.getModule("utils/Resizer"),
@@ -130,7 +132,7 @@ define(function (require, exports, module) {
             currentDoc = null;
         }
         
-        if (doc && /md|markdown/.test(ext)) {
+        if (_isMarkdownFile) {
             currentDoc = doc;
             $(currentDoc).on("change", _documentChange);
             $icon.css({display: "inline-block"});
@@ -143,8 +145,16 @@ define(function (require, exports, module) {
     }
     
     function _toggleVisibility() {
-        visible = !visible;
-        _setPanelVisibility(visible);
+        if(_isMarkdownFile()){
+            visible = !visible;
+            _setPanelVisibility(visible);
+        }
+    }
+    
+    function _isMarkdownFile() {
+        var doc = DocumentManager.getCurrentDocument(),
+        ext = doc ? PathUtils.filenameExtension(doc.file.fullPath).toLowerCase() : "";
+        return (doc && /md|markdown/.test(ext));
     }
     
     // Insert CSS for this extension
@@ -170,6 +180,14 @@ define(function (require, exports, module) {
     AppInit.appReady(function () {
         _currentDocChangedHandler();
     });
+    
+    // Commands
+    var SHOW_PREVIEW_PANEL = "gruehle.markdown.showpreviewpanel";   // package-style naming to avoid collisions
+    CommandManager.register("Show Preview Panel", SHOW_PREVIEW_PANEL, _toggleVisibility);
+    
+    
+    var menu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
+    menu.addMenuItem(SHOW_PREVIEW_PANEL, "Ctrl-Shift-M");
     
     // Listen for resize events
     $(PanelManager).on("editorAreaResize", _resizeIframe);
