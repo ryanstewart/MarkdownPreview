@@ -183,7 +183,7 @@ define(function (require, exports, module) {
     
     // Commands
     var SHOW_PREVIEW_PANEL = "gruehle.markdown.showpreviewpanel";   // package-style naming to avoid collisions
-    CommandManager.register("Show Preview Panel", SHOW_PREVIEW_PANEL, _toggleVisibility);
+    CommandManager.register("Show Markdown Preview", SHOW_PREVIEW_PANEL, _toggleVisibility);
     
     
     var menu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
